@@ -1,0 +1,34 @@
+1、设备信息
+topic_ad_visit -> dim_device
+
+2、客户端
+topic_ad_visit -> fact_client
+
+3、活跃
+topic_ad_visit,fact_client -> fact_active
+
+4、广告下发反馈
+topic_ad_advs,topic_ad_reply -> mid_ad
+
+5、广告下发反馈
+mid_ad -> fact_ad
+
+6、版本使用记录
+topic_ad_visit -> mid_version
+
+7、升级下发
+topic_ad_upgrd -> log_upgrade
+
+8、升级下发-升级
+mid_version,log_upgrade -> mid_upgrade
+
+9、升级下发-升级
+fact_client,mid_upgrade -> fact_upgrade
+
+10、黑名单
+adv_customer,fact_client -> fact_blacklist
+
+11、运营
+topic_ad_visit -> fact_runlevel
+
+

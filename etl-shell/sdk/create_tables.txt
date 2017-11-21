@@ -1,0 +1,247 @@
+-- 设备信息
+CREATE TABLE IF NOT EXISTS dim_device (
+  uuid VARCHAR(50) COMMENT '已校验唯一ID',
+  device_id VARCHAR(50) COMMENT '设备当前唯一ID',
++  app_key VARCHAR(50) COMMENT '产品key',
+  customer_id VARCHAR(50) COMMENT '渠道号',
+##  network VARCHAR(50) COMMENT '最高网络类型 Unknown<WIFI<2G<3G<4G',
+  platform VARCHAR(50) COMMENT 'ios,android',
+##  have_vpn INT(4) NOT NULL DEFAULT '0' COMMENT 'vpn代理 1:使用 0:未使用',
+#  imsi VARCHAR(50) COMMENT 'sim卡卡号',
+#  wifi_mac VARCHAR(50) COMMENT 'WIFI-mac地址',
+  imei VARCHAR(50) COMMENT 'imei',
+  android_id VARCHAR(50) COMMENT 'android id',
+  baseband VARCHAR(200) COMMENT '基带版本',
+  language VARCHAR(20) COMMENT '语言',
+  resolution VARCHAR(50) COMMENT '分辨率',
+  model_name VARCHAR(50) COMMENT '品牌',
+  cpu VARCHAR(50) COMMENT 'cpu',
+  device_name VARCHAR(50) COMMENT '机型',
+  os_version VARCHAR(50) COMMENT '当前操作系统版本',
+  cameras VARCHAR(25) COMMENT '相机信息 11,00,10,01',
+  sdcard_size BIGINT(20) COMMENT 'sd卡总容量',
+  rom_size BIGINT(20) COMMENT 'rom总容量',
+#  phone_no VARCHAR(20) COMMENT '手机号码',
+  city VARCHAR(50) COMMENT '城市',
+  region VARCHAR(50) COMMENT '地区',
+  country VARCHAR(50) COMMENT '国家',
+  uuid_type INT(4) COMMENT 'uuid校验类型 1:uuid 2:android 3:imsi+imei',
+#  isp_code INT(11) COMMENT '运营商编码',
+  create_time DATETIME COMMENT '创建时间',
+##  update_time DATETIME COMMENT '更新时间',
+-  is_exists TINYINT(4) NOT NULL DEFAULT '0' COMMENT 'android id是否存在于旧版sdk',
+-  is_registered TINYINT(4) NOT NULL DEFAULT '0' COMMENT '是否已注册',
+  PRIMARY KEY (uuid)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='设备信息';
+
+-- 客户端
+CREATE TABLE IF NOT EXISTS fact_client (
+  uuid VARCHAR(50) COMMENT '已校验唯一ID',
+  app_key VARCHAR(50) COMMENT 'yygz,ylxx',
+  customer_id VARCHAR(50) COMMENT '渠道号',
+  version VARCHAR(10) COMMENT '当前版本',
+  pkg_path INT(4) NOT NULL DEFAULT '0' COMMENT '安装目录 1:system目录 2:data目录 3:sd卡目录 4:vendor目录',
+  create_time DATETIME COMMENT '创建时间',
+  update_time DATETIME COMMENT '更新时间',
+  init_version VARCHAR(10) COMMENT '初始版本',
+  create_date INT(11) COMMENT '创建日期',
+  is_silent TINYINT(4) NOT NULL DEFAULT '0' COMMENT '是否沉默用户 0:否 1:是',
+-  is_activated TINYINT(4) NOT NULL DEFAULT '0' COMMENT '是否激活 0:否 1:是',
+-  activate_date INT(11) COMMENT '激活日期',
+  PRIMARY KEY (uuid, app_key),
+  KEY idx_create_date (create_date)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='客户端';
+
+-- 活跃
+CREATE TABLE IF NOT EXISTS fact_active (
+  uuid VARCHAR(50) COMMENT '已校验唯一ID',
+  app_key VARCHAR(50) COMMENT 'yygz,ylxx',
+  active_date INT(11) NOT NULL DEFAULT '0' COMMENT '活跃日期',
+-  active_hours VARCHAR(64) COMMENT '活跃时间',
+-  time_diff BIGINT(20) COMMENT '客户端服务器时间差（秒，最新）',
+-  boottime BIGINT(20) COMMENT '进程启动时长（毫秒，当天最大）',
+  version VARCHAR(10) COMMENT '当前版本',
+-  sdcard_size BIGINT(20) COMMENT 'sd卡剩余容量（最新）',
+-  rom_size BIGINT(20) COMMENT 'rom剩余容量（最新）',
+-  screen_on INT(11) COMMENT '开屏总数，-1：获取不到（当天最大）',
+-  battery INT(11) COMMENT '最小电量，-1：获取不到（当天最低）',
+  log_type INT(1) NOT NULL DEFAULT '0' COMMENT '日志类型 1：用户打开，2：定时联网',
+  city VARCHAR(50) COMMENT '城市',
+  region VARCHAR(50) COMMENT '地区',
+  country VARCHAR(50) COMMENT '国家',
+-  client_ip VARCHAR(50) COMMENT '客户端ip',
+  visit_times INT(11) COMMENT '访问次数',
+-  start_times INT(11) COMMENT '启动次数',
+-  duration BIGINT(20) COMMENT '时长（秒）',
+  customer_id VARCHAR(50) COMMENT '渠道号',
+  init_version VARCHAR(10) COMMENT '初始版本',
+  create_date INT(11) COMMENT '创建日期',
+  date_diff INT(11) COMMENT '第几天活跃',
+  PRIMARY KEY (uuid, app_key, active_date, log_type),
+  KEY idx_create_date (create_date),
+  KEY idx_active_date (active_date)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='活跃';
+
+-- 启动(不动)
+CREATE TABLE IF NOT EXISTS fact_session (
+  uuid varchar(50) COMMENT '已校验唯一ID',
+  app_key varchar(50) COMMENT 'yygz,ylxx',
+  session_id varchar(64) COMMENT 'session id',
+  create_time datetime COMMENT '创建时间',
+  version varchar(10) COMMENT '当前版本',
+  duration bigint(20) COMMENT '时长（秒）',
+  customer_id varchar(50) COMMENT '渠道号',
+  prev_time datetime COMMENT '上次启动时间',
+  create_date int(11) COMMENT '创建日期',
+  date_diff int(11) COMMENT '本次与上次启动日期差，首次为-1',
+  PRIMARY KEY (uuid, app_key, session_id),
+  KEY idx_create_date (create_date)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='App启动';
+
+-- 开放数据
+$ETL_HOME/sdk/open_data.sh
+t_channeldaily
+去掉旧版SDK
+
+-- 设备其他信息
+-- 渠道评级
+CREATE TABLE IF NOT EXISTS fact_device (
+  uuid VARCHAR(50) COMMENT '已校验唯一ID',
+  customer_id VARCHAR(50) COMMENT '渠道号',
+  create_date INT(11) COMMENT '创建日期',
+  runtime INT(11) NOT NULL DEFAULT '0' COMMENT '进程运行时长（分，最大值）',
+  unlock_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '开屏次数（最大值）',
+  battery_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '电量个数（去重个数）',
+  etime_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '客户端服务器异常时差次数（异常次数）',
+  station_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '基站个数（去重个数）',
+  account_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '应用账号个数（去重个数）',
+  install_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '安卸App个数（去重个数）',
+  appuse_cnt INT(11) NOT NULL DEFAULT '0' COMMENT '使用App个数（去重个数）',
+  PRIMARY KEY (uuid),
+  KEY idx_create_date (create_date)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='设备其他信息';
+
+-- 点击事件(不动)
+CREATE TABLE fact_event (
++  app_key VARCHAR(50) COMMENT '产品key',
+  customer_id VARCHAR(50) COMMENT '渠道号',
+  version VARCHAR(10) COMMENT '当前版本',
+  event_id VARCHAR(50) COMMENT '事件ID',
+  create_date INT(11) NOT NULL DEFAULT '0' COMMENT '创建日期',
+  click_count INT(11) COMMENT '点击次数',
+  user_count INT(11) COMMENT '点击用户数',
+  PRIMARY KEY (app_key, customer_id, version, create_date, event_id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='点击事件';
+
+-- 分时段点击事件(不动)
+CREATE TABLE fact_hour_event (
++  app_key varchar(50) COMMENT '产品key',
+  customer_id varchar(50) NOT NULL DEFAULT '' COMMENT '渠道号',
+  version varchar(10) NOT NULL DEFAULT '' COMMENT '当前版本',
+  event_id varchar(50) NOT NULL DEFAULT '' COMMENT '事件ID',
+  create_date int(11) NOT NULL DEFAULT '0' COMMENT '创建日期',
+  create_hour int(11) NOT NULL DEFAULT '0' COMMENT '创建时刻',
+  click_count int(11) COMMENT '点击次数',
+  user_count int(11) COMMENT '点击用户数',
+  PRIMARY KEY (customer_id,version,create_date,create_hour,event_id)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='分时段点击';
+
+-- 一级事件(不动)
+CREATE TABLE first_level_event (
++  app_key varchar(50) COMMENT '产品key',
+  device_id varchar(50) NOT NULL DEFAULT '' COMMENT '设备ID',
+  customer_id varchar(50) COMMENT '渠道号',
+  version varchar(10) COMMENT '当前版本',
+  event_id varchar(50) NOT NULL DEFAULT '' COMMENT '事件ID',
+  create_date int(11) NOT NULL DEFAULT '0' COMMENT '创建日期',
+  click_times int(11) COMMENT '点击次数',
+  PRIMARY KEY (device_id,event_id,create_date)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='一级事件';
+
+-- 二级事件(不动)
+CREATE TABLE sub_level_event (
++  app_key varchar(50) COMMENT '产品key',
+  device_id varchar(50) NOT NULL DEFAULT '' COMMENT '设备ID',
+  customer_id varchar(50) COMMENT '渠道号',
+  version varchar(10) COMMENT '当前版本',
+  event_id varchar(50) NOT NULL DEFAULT '' COMMENT '事件ID',
+  acc bigint(20) NOT NULL DEFAULT '0' COMMENT '栏目ID',
+  create_date int(11) NOT NULL DEFAULT '0' COMMENT '创建日期',
+  click_times int(11) COMMENT '点击次数',
+  PRIMARY KEY (device_id,event_id,acc,create_date)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='二级事件';
+
+-- 资讯 点击、分享、评论
+$ETL_HOME/focus/fact_info.sh
+-- 视频 点击、分享、评论
+$ETL_HOME/focus/fact_video.sh
+CREATE TABLE `fact_info_video` (
+  `id` bigint(20) NOT NULL DEFAULT '0',
+  `date_range` varchar(20) NOT NULL DEFAULT '' COMMENT '日期范围',
+  `content_type` int(1) DEFAULT '0' COMMENT '0:资讯 1:视频',
+  `category_name` varchar(128) DEFAULT NULL COMMENT '类别名称',
+  `title` varchar(128) DEFAULT NULL COMMENT '标题',
+  `source` varchar(64) DEFAULT NULL COMMENT '来源',
+  `publish_time` datetime DEFAULT NULL COMMENT '发布时间',
+  `create_by` varchar(32) DEFAULT NULL COMMENT '创建人',
+  `is_index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否推到首页 0:否 1:是',
+  `is_push` int(1) NOT NULL DEFAULT '0' COMMENT '是否推送 0:未推送 1:已经推送',
+  `source_platform` int(11) DEFAULT NULL COMMENT '来源平台 0:牙牙资讯 1:自媒体 2:其他',
+  `click_count` int(11) DEFAULT NULL COMMENT '点击次数',
+  `click_user` int(11) DEFAULT NULL COMMENT '点击人数',
+  `comment_count` int(11) DEFAULT NULL COMMENT '评论次数',
+  `comment_user` int(11) DEFAULT NULL COMMENT '评论人数',
+  `share_count` int(11) DEFAULT NULL COMMENT '分享次数',
+  `share_user` int(11) DEFAULT NULL COMMENT '分享人数',
+  PRIMARY KEY (`id`,`date_range`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='资讯视频运营';
+
+-- 互动 点击、分享、评论
+$ETL_HOME/star/fact_interact.sh
+CREATE TABLE `fact_interact` (
+  `id` bigint(20) NOT NULL DEFAULT '0',
+  `date_range` varchar(20) NOT NULL DEFAULT '' COMMENT '日期范围',
+  `title` varchar(50) DEFAULT NULL COMMENT '标题',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `click_count` int(11) DEFAULT NULL COMMENT '访问次数',
+  `click_user` int(11) DEFAULT NULL COMMENT '访问人数',
+  `comment_count` int(11) DEFAULT NULL COMMENT '评论次数',
+  `comment_user` int(11) DEFAULT NULL COMMENT '评论人数',
+  `share_count` int(11) DEFAULT NULL COMMENT '分享次数',
+  `share_user` int(11) DEFAULT NULL COMMENT '分享人数',
+  PRIMARY KEY (`id`,`date_range`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='互动运营';
+
+-- 明星 访问、粉丝、动态、帖子、评论
+$ETL_HOME/star/fact_star.sh
+CREATE TABLE `fact_star` (
+  `star_id` bigint(20) NOT NULL DEFAULT '0',
+  `real_name` varchar(50) DEFAULT NULL COMMENT '真实姓名',
+  `create_date` int(11) NOT NULL DEFAULT '0' COMMENT '创建日期',
+  `click_count` int(11) DEFAULT NULL COMMENT '访问次数',
+  `click_user` int(11) DEFAULT NULL COMMENT '访问人数',
+  `fans_count` int(11) DEFAULT NULL COMMENT '粉丝数',
+  `dynamic_num` int(11) DEFAULT NULL COMMENT '动态数',
+  `post_count` int(11) DEFAULT NULL COMMENT '帖子数',
+  `comment_count` int(11) DEFAULT NULL COMMENT '评论数',
+  PRIMARY KEY (`star_id`,`create_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='明星运营';
+
+-- 粉丝申请圈主判断
+$ETL_HOME/star/lord_judge.sh
+
+-- 手游点击数
+$ETL_HOME/focus/mobile_game.sh
+
+-- 粉丝爱心指数Top5
+$ETL_HOME/focus/fan_love_top.sh
+
+-- 明星粉丝月指数Top50
+$ETL_HOME/focus/fan_month_top.sh
+
+-- 公益粉丝爱心指数Top20
+$ETL_HOME/focus/fan_publics_top.sh
+
+-- 明星粉丝指数Top10
+$ETL_HOME/focus/fan_top.sh

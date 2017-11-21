@@ -1,0 +1,26 @@
+# collector for file: focus rop_api_data.log.yyyy-MM-dd-HH
+# host: 10.10.10.172:11002
+# 启动命令:
+# nohup flume-ng agent --conf $FLUME_HOME/conf -f $FLUME_HOME/conf/focus/apilog.collector -n agg -Dflume.root.logger=INFO,console > $FLUME_HOME/logs/focus/apilog.log 2>&1 &
+# 清理日志目录:
+# rm -rf /var/flume/fchannel/checkpoint/collector/focus/apilog
+# rm -rf /var/flume/fchannel/data/collector/focus/apilog
+
+agg.sources = src_1
+agg.channels = cha_1
+agg.sinks = sink_1
+
+agg.sources.src_1.type = avro
+agg.sources.src_1.bind = 10.10.10.172
+agg.sources.src_1.port = 11002
+agg.sources.src_1.channels = cha_1
+
+agg.channels.cha_1.type = file
+agg.channels.cha_1.checkpointDir = /var/flume/fchannel/checkpoint/collector/focus/apilog
+agg.channels.cha_1.dataDirs = /var/flume/fchannel/data/collector/focus/apilog
+agg.channels.cha_1.checkpointInterval = 60000
+
+agg.sinks.sink_1.type = file_roll
+agg.sinks.sink_1.channel = cha_1
+agg.sinks.sink_1.sink.directory = /var/flume/sink/data/collector/focus/apilog
+agg.sinks.sink_1.sink.rollInterval = 60

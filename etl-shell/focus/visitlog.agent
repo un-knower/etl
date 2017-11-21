@@ -1,0 +1,35 @@
+# agent for file: focus visitlog.yyyy-MM-dd_HH.csv
+# 启动命令:
+# nohup flume-ng agent --conf $FLUME_HOME/conf -f $FLUME_HOME/conf/focus/visitlog.agent -n agt -Dflume.root.logger=INFO,console > $FLUME_HOME/logs/focus/visitlog.log 2>&1 &
+# 日志文件名复位:
+# ls visitlog*COMPLETED | while read file_name; do mv $file_name ${file_name%.*};done
+# 清理日志目录:
+# rm -rf /var/flume/fchannel/checkpoint/agent/focus/visitlog
+# rm -rf /var/flume/fchannel/data/agent/focus/visitlog
+# 按月备份
+# tar -zcvf visitlog.2015-08.tar.gz visitlog.2015-08-*COMPLETED
+# rm -f visitlog.2015-08-*COMPLETED
+
+agt.sources = src_1
+agt.channels = cha_1
+agt.sinks = sink_1
+
+
+# sources
+agt.sources.src_1.type = spooldir
+agt.sources.src_1.spoolDir = /logs/tomcatlog/focuslog
+agt.sources.src_1.ignorePattern = ^(?!.*(visitlog\\.[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\\.csv)).*$
+agt.sources.src_1.channels = cha_1
+
+
+# channels
+agt.channels.cha_1.type = file
+agt.channels.cha_1.checkpointDir = /var/flume/fchannel/checkpoint/agent/focus/visitlog
+agt.channels.cha_1.dataDirs = /var/flume/fchannel/data/agent/focus/visitlog
+
+
+# sinks
+agt.sinks.sink_1.channel = cha_1
+agt.sinks.sink_1.type = avro
+agt.sinks.sink_1.hostname = 10.10.10.172
+agt.sinks.sink_1.port = 11000

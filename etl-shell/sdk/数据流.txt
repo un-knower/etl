@@ -1,0 +1,32 @@
+1、设备信息
+visitlog -> dim_device
+
+2、客户端
+visitlog -> fact_client
+
+3、活跃
+visitlog,fact_client,fact_session -> fact_active
+
+4、启动
+ums_clientusinglog,fact_client -> fact_session
+
+5、渠道评级
+account,addapps,station,useapps,dim_device -> fact_device
+
+6、分时段活跃
+fact_active -> fact_hour_active
+
+7、单日在线时长
+fact_session -> fact_using
+
+8、分时段事件
+event,dim_device -> fact_hour_event
+
+9、点击事件
+event,dim_device -> fact_event
+
+10、一级事件
+event,dim_device -> first_level_event
+
+11、二级事件
+event,dim_device -> sub_level_event

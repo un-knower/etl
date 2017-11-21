@@ -1,0 +1,36 @@
+# agent for file: focus rop_api_data.log.yyyy-MM-dd-HH
+# 启动命令:
+# nohup flume-ng agent --conf $FLUME_HOME/conf -f $FLUME_HOME/conf/focus/apilog.agent -n agt -Dflume.root.logger=INFO,console > $FLUME_HOME/logs/focus/apilog.log 2>&1 &
+# 日志文件名复位:
+# ls rop_api_data.log.*.COMPLETED | while read file_name; do mv $file_name ${file_name%.*};done
+# 清理日志目录:
+# rm -rf /var/flume/fchannel/checkpoint/agent/focus/apilog
+# rm -rf /var/flume/fchannel/data/agent/focus/apilog
+# 按月备份
+# tar -zcvf rop_api_data.log.2015-11.tar.gz apilog.2015-11-*.COMPLETED
+# rm -f rop_api_data.log.2015-11-*.COMPLETED
+
+agt.sources = src_1
+agt.channels = cha_1
+agt.sinks = sink_1
+
+
+# sources
+agt.sources.src_1.type = spooldir
+agt.sources.src_1.spoolDir = /work/logs/rop/api/rop-mobile-yaya
+agt.sources.src_1.ignorePattern = ^(?!.*(rop_api_data.log\\.[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2})).*$
+agt.sources.src_1.channels = cha_1
+
+
+# channels
+agt.channels.cha_1.type = file
+agt.channels.cha_1.checkpointDir = /var/flume/fchannel/checkpoint/agent/focus/apilog
+agt.channels.cha_1.dataDirs = /var/flume/fchannel/data/agent/focus/apilog
+
+
+# sinks
+agt.sinks.sink_1.channel = cha_1
+agt.sinks.sink_1.type = avro
+agt.sinks.sink_1.hostname = 10.10.10.172
+agt.sinks.sink_1.port = 11002
+agt.sinks.sink_1.request-timeout = 60000

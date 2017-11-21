@@ -1,0 +1,20 @@
+CREATE TABLE first_level_event (
+	device_id VARCHAR(50) COMMENT '设备ID',
+	customer_id VARCHAR(50) COMMENT '渠道号',
+	version VARCHAR(10) COMMENT '当前版本',
+	event_id VARCHAR(50) COMMENT '事件ID',
+	create_date INT(11) COMMENT '创建日期',
+	click_times INT(11) COMMENT '点击次数',
+	PRIMARY KEY (device_id, event_id, create_date)
+) COMMENT = '一级事件';
+
+CREATE TABLE sub_level_event (
+	device_id VARCHAR(50) COMMENT '设备ID',
+	customer_id VARCHAR(50) COMMENT '渠道号',
+	version VARCHAR(10) COMMENT '当前版本',
+	event_id VARCHAR(50) COMMENT '事件ID',
+	acc BIGINT(20) COMMENT '栏目ID',
+	create_date INT(11) COMMENT '创建日期',
+	click_times INT(11) COMMENT '点击次数',
+	PRIMARY KEY (device_id, event_id, acc, create_date)
+) COMMENT = '二级事件';
