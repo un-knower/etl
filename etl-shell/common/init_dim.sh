@@ -18,19 +18,20 @@ function dim_date()
       id INT,
       the_year SMALLINT,
       half_year TINYINT,
-      quarter TINYINT,
+      the_quarter TINYINT,
       month_of_year TINYINT,
       week_of_year TINYINT,
       day_of_month TINYINT,
       week_day TINYINT,
       the_date DATE,
       order_no INT,
+      quarter_name CHAR(2),
       month_name VARCHAR(9),
       abbr_month_name VARCHAR(3),
-      cn_month VARCHAR(9),
+      cn_month_name VARCHAR(9),
       week_name VARCHAR(9),
       abbr_week_name VARCHAR(3),
-      cn_week VARCHAR(9),
+      cn_week_name VARCHAR(9),
       PRIMARY KEY (id)
     ) ENGINE=MyISAM COMMENT='日期维度';
     " | exec_sql
@@ -106,8 +107,8 @@ function dim_date()
         cn_week[5]="周六"
         cn_week[6]="周日"
 
-        print "INSERT INTO dim_date (id, the_year, half_year, quarter, month_of_year, week_of_year, day_of_month, week_day, the_date, order_no, month_name, abbr_month_name, cn_month, week_name, abbr_week_name, cn_week) VALUES"
-        printf("(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n",id, year, half_year, quarter,month, week_of_year, day, week_day, id, order_no, month_name, abbr_month_name, cn_month[month], week_name, abbr_week_name, cn_week[week_day])
+        print "INSERT INTO dim_date (id, the_year, half_year, the_quarter, month_of_year, week_of_year, day_of_month, week_day, the_date, order_no, quarter_name, month_name, abbr_month_name, cn_month_name, week_name, abbr_week_name, cn_week_name) VALUES"
+        printf("(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, \"Q%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");\n",id, year, half_year, quarter,month, week_of_year, day, week_day, id, order_no, quarter, month_name, abbr_month_name, cn_month[month], week_name, abbr_week_name, cn_week[week_day])
     }' | exec_sql
 }
 
