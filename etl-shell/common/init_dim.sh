@@ -36,6 +36,7 @@ function dim_date()
     ) ENGINE=MyISAM COMMENT='日期维度';
     " | exec_sql
 
+    export LANG=en_US.UTF-8
     range_date 20150525 20171231 | awk '{
         id=$1
         year=substr(id, 0, 4)
